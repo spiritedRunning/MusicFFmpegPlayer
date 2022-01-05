@@ -96,7 +96,8 @@ void LibFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
         if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) { //得到音频流
             if (audio == NULL) {
-                audio = new AudioEngine(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJava);
+                audio = new AudioEngine(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate,
+                                        callJava);
                 audio->streamIndex = i;
                 audio->codecpar = pFormatCtx->streams[i]->codecpar;
 
@@ -159,5 +160,24 @@ void LibFFmpeg::seek(int64_t sec) {
             LOGE("seek finish");
             playStatus->seek = false;
         }
+    }
+}
+
+void LibFFmpeg::pause() {
+    if (audio != NULL) {
+        audio->pause();
+    }
+
+}
+
+void LibFFmpeg::resume() {
+    if (audio != NULL) {
+        audio->resume();
+    }
+}
+
+void LibFFmpeg::setChannel(int channel){
+    if (audio != NULL) {
+        audio->setChannel(channel);
     }
 }

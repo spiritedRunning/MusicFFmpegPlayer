@@ -144,6 +144,16 @@ public class MusicService extends Service implements IPlayerListener {
             } else if (action.equals(ACTION_OPT_MUSIC_SEEK_TO)) {
                 int position = intent.getIntExtra(MusicService.PARAM_MUSIC_SEEK_TO, 0);
                 seekTo(position);
+            } else if (action.equals(ACTION_OPT_MUSIC_RESUME)) {
+                resume();
+            } else if (action.equals(ACTION_OPT_MUSIC_PAUSE)) {
+                pause();
+            } else if (action.equals(ACTION_OPT_MUSIC_RIGHT)) {
+                nPlayerInterface.setChannel(0);
+            } else if (action.equals(ACTION_OPT_MUSIC_LEFT)) {
+                nPlayerInterface.setChannel(1);
+            } else if (action.equals(ACTION_OPT_MUSIC_CENTER)) {
+                nPlayerInterface.setChannel(2);
             }
         }
     }
@@ -151,6 +161,14 @@ public class MusicService extends Service implements IPlayerListener {
     private void play(final int index) {
         nPlayerInterface.setSource("http://mn.maliuedu.com/music/dengniguilai.mp3");
         nPlayerInterface.prepared();
+    }
+
+    private void pause() {
+        nPlayerInterface.pause();
+    }
+
+    private void resume() {
+        nPlayerInterface.resume();
     }
 
 

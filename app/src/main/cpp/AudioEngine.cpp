@@ -174,16 +174,18 @@ void AudioEngine::initOpenSLES() {
     SLDataSource slDataSource = {&android_queue, &pcm};
 
 
-    const SLInterfaceID ids[1] = {SL_IID_BUFFERQUEUE};
-    const SLboolean req[1] = {SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_MUTESOLO};
+    const SLboolean req[2] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
-    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 1,
+    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 2,
                                        ids, req);
     //初始化播放器
     (*pcmPlayerObject)->Realize(pcmPlayerObject, SL_BOOLEAN_FALSE);
 
     // 获取Player接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_PLAY, &pcmPlayerPlay);
+    // 获取声道操作接口
+    (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_MUTESOLO, &pcmMutePlay);
 
     // 注册回调缓冲区 获取缓冲队列接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_BUFFERQUEUE, &pcmBufferQueue);
@@ -241,4 +243,34 @@ int AudioEngine::getCurrentSampleRateForOpensles(int sample_rate) {
             rate = SL_SAMPLINGRATE_44_1;
     }
     return rate;
+}
+
+void AudioEngine::resume() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
+}
+
+void AudioEngine::pause() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+void AudioEngine::setChannel(int channel) {
+    LOGE("pcmMutePlay: %p", pcmMutePlay);
+    if (pcmMutePlay == NULL) {
+        return;
+    }
+    this->mute = channel;
+    if (channel == 0) { // right
+        (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, false);
+        (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, true);
+    } else if (channel == 1) { // left
+        (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, true);
+        (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, false);
+    } else if (channel == 2) { // center
+        (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, false);
+        (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, false);
+    }
 }

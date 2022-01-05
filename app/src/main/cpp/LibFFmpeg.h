@@ -33,7 +33,10 @@ public:
 
     void prepared();
     void start();
+    void pause();
     void seek(int64_t sec);
+    void resume();
+    void setChannel(int channel);
 
     void decodeFFmpegThread();
 

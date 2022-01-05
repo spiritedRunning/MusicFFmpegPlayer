@@ -156,10 +156,10 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
                 play();
                 break;
             }
-//            case PAUSE:{
-//                pause();
-//                break;
-//            }
+            case PAUSE:{
+                pause();
+                break;
+            }
             case NEXT: {
                 next();
                 break;
@@ -221,6 +221,18 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
         Intent intent = new Intent(MusicService.ACTION_OPT_MUSIC_SEEK_TO);
         intent.putExtra(MusicService.PARAM_MUSIC_SEEK_TO, position);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    public void left(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_LEFT);
+    }
+
+    public void right(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_RIGHT);
+    }
+
+    public void center(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_CENTER);
     }
 
     private void optMusic(final String action) {

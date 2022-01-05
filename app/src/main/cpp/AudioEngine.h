@@ -58,6 +58,13 @@ public:
 
     double last_tick; // 上次调用时间
 
+    int mute = 2;   // 立体声
+    SLMuteSoloItf pcmMutePlay = NULL;   // 声道
+
+    void pause();
+    void resume();
+    void setChannel(int channel);
+
 
 public:
     AudioEngine(PlayStatus *playStatus, int sample_rate, CallJavaWrapper *callJava);

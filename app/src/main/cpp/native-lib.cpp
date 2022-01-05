@@ -54,3 +54,28 @@ Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1seek(JNIEnv *env, 
         ffmpeg->seek(sec);
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1resume(JNIEnv *env, jobject thiz) {
+    if (ffmpeg != NULL) {
+        ffmpeg->resume();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1pause(JNIEnv *env, jobject thiz) {
+    if (ffmpeg != NULL) {
+        ffmpeg->pause();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1channel(JNIEnv *env, jobject thiz,
+                                                                      jint channel) {
+    if (ffmpeg != NULL) {
+        ffmpeg->setChannel(channel);
+    }
+}
