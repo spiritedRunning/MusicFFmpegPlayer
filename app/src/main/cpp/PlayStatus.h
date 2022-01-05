@@ -8,6 +8,7 @@
 class PlayStatus {
 public:
     bool exit;
+    bool seek = false;
 
     PlayStatus();
 };

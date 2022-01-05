@@ -4,12 +4,12 @@
 
 #include "AudioEngine.h"
 
-AudioEngine::AudioEngine(PlayStatus *playstatus, int sample_rate) {
+AudioEngine::AudioEngine(PlayStatus *playstatus, int sample_rate, CallJavaWrapper *callJava) {
     this->playstatus = playstatus;
     this->sample_rate = sample_rate;
     queue = new DataQueue(playstatus);
     buffer = (uint8_t *) av_malloc(sample_rate * 2 * 2);
-
+    this->callJava = callJava;
 }
 
 AudioEngine::~AudioEngine() {
@@ -87,9 +87,14 @@ int AudioEngine::resampleAudio() {
             int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
-
+//            avFrame->pts *  time_base.num / (double) time_base.den;
+            now_time = avFrame->pts * av_q2d(time_base);
+            if (now_time < clock) {
+                now_time = clock;
+            }
+            clock = now_time;
             if (LOG_DEBUG) {
-                LOGE("data_size is %d", data_size);
+//                LOGE("data_size is %d", data_size);
             }
             av_packet_free(&avPacket);
             av_free(avPacket);
@@ -117,6 +122,15 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     if (wlAudio != NULL) {
         int buffersize = wlAudio->resampleAudio();
         if (buffersize > 0) {
+            wlAudio->clock += buffersize / ((double) (wlAudio->sample_rate * 2 * 2));
+
+            if (wlAudio->clock - wlAudio->last_tick >= 0.1) { // 因为pcmBufferCallBack 回调比较频繁，增加时间间隔
+                wlAudio->last_tick = wlAudio->clock;
+
+                LOGD("pcmBufferCallBack onCallTimeInfo");
+                wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
+            }
+
             (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, (char *) wlAudio->buffer,
                                                 buffersize);
         }
@@ -179,7 +193,6 @@ void AudioEngine::initOpenSLES() {
     (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
     pcmBufferCallBack(pcmBufferQueue, this);
 }
-
 
 
 int AudioEngine::getCurrentSampleRateForOpensles(int sample_rate) {

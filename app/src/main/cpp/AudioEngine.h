@@ -50,8 +50,17 @@ public:
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
 
 
+    CallJavaWrapper *callJava = NULL;
+    int duration = 0;
+    AVRational time_base;
+    double now_time;  // 当前frame时间
+    double clock;  // 当前播放时间， 准备时间
+
+    double last_tick; // 上次调用时间
+
+
 public:
-    AudioEngine(PlayStatus *playStatus, int sample_rate);
+    AudioEngine(PlayStatus *playStatus, int sample_rate, CallJavaWrapper *callJava);
 
     ~AudioEngine();
 

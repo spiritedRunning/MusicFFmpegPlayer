@@ -8,10 +8,11 @@ LibFFmpeg::LibFFmpeg(PlayStatus *playstatus, CallJavaWrapper *callJava, const ch
     this->playStatus = playstatus;
     this->callJava = callJava;
     this->url = url;
+    pthread_mutex_init(&seek_mutex, NULL);
 }
 
 LibFFmpeg::~LibFFmpeg() {
-
+    pthread_mutex_destroy(&seek_mutex);
 }
 
 
@@ -36,6 +37,9 @@ void LibFFmpeg::start() {
 
     int count = 0;
     while (playStatus != NULL && !playStatus->exit) {
+        if (playStatus->seek) {  // important!  seek后清空数据，不能播放已清空的数据
+            continue;
+        }
         // 放入队列
         if (audio->queue->getQueueSize() > 40) {
             continue;
@@ -92,9 +96,13 @@ void LibFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < pFormatCtx->nb_streams; i++) {
         if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) { //得到音频流
             if (audio == NULL) {
-                audio = new AudioEngine(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate);
+                audio = new AudioEngine(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJava);
                 audio->streamIndex = i;
                 audio->codecpar = pFormatCtx->streams[i]->codecpar;
+
+                audio->duration = pFormatCtx->duration / AV_TIME_BASE;  // 总时长
+                audio->time_base = pFormatCtx->streams[i]->time_base;
+                duration = audio->duration;
             }
         }
     }
@@ -129,4 +137,27 @@ void LibFFmpeg::decodeFFmpegThread() {
         return;
     }
     callJava->onCallPrepared(CHILD_THREAD);
+}
+
+void LibFFmpeg::seek(int64_t sec) {
+    if (duration <= 0) {
+        return;
+    }
+    LOGE("seek start");
+    if (sec >= 0 && sec <= duration) {
+        if (audio != NULL) {
+            playStatus->seek = true;
+            audio->queue->clearAvPacket();
+            audio->clock = 0;
+            audio->last_tick = 0;
+
+            pthread_mutex_lock(&seek_mutex);
+            int64_t rel = sec * AV_TIME_BASE;
+            avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
+            pthread_mutex_unlock(&seek_mutex);
+
+            LOGE("seek finish");
+            playStatus->seek = false;
+        }
+    }
 }

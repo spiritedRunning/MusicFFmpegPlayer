@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Log.i(TAG, "onStopTrackingTouch: " + position);
+                seekTo(position);
             }
         });
         mTvMusicDuration.setText(displayUtil.duration2Time(0));
@@ -117,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
     @Override
     public void onClick(View v) {
         if (v == mIvPlayOrPause) {
-            playState = !playState;
             Log.i(TAG, "onClick: ---------" + playState);
+
             if (playState) {
                 mIvPlayOrPause.setImageResource(R.mipmap.ic_play);
                 pause();
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
                 mDisc.play();
             }
 
-
+            playState = !playState;
         } else if (v == mIvNext) {
             mDisc.next();
         } else if (v == mIvLast) {
@@ -139,12 +140,13 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
 
     @Override
     public void onMusicInfoChanged(String musicName, String musicAuthor) {
-
+        getSupportActionBar().setTitle(musicName);
+        getSupportActionBar().setSubtitle(musicAuthor);
     }
 
     @Override
     public void onMusicPicChanged(int musicPicRes) {
-
+        displayUtil.try2UpdateMusicPicBackground(this, mRootLayout, musicPicRes);
     }
 
     @Override
@@ -213,6 +215,12 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
 
         mTvMusicDuration.setText(displayUtil.duration2Time(0));
         mTvTotalMusicDuration.setText(displayUtil.duration2Time(0));
+    }
+
+    private void seekTo(int position) {
+        Intent intent = new Intent(MusicService.ACTION_OPT_MUSIC_SEEK_TO);
+        intent.putExtra(MusicService.PARAM_MUSIC_SEEK_TO, position);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void optMusic(final String action) {

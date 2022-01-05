@@ -26,6 +26,7 @@ public:
     ~CallJavaWrapper();
 
     void onCallPrepared(int type);
+    void onCallTimeInfo(int type, int curr, int total);
 
 };
 

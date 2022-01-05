@@ -98,7 +98,10 @@ public class MusicService extends Service implements IPlayerListener {
 
     @Override
     public void onCurrentTime(int currentTime, int totalTime) {
-
+        Intent intent = new Intent(ACTION_STATUS_MUSIC_PLAYER_TIME);
+        intent.putExtra("currentTime", currentTime);
+        intent.putExtra("totalTime", totalTime);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
@@ -139,7 +142,8 @@ public class MusicService extends Service implements IPlayerListener {
             } else if (action.equals(ACTION_OPT_MUSIC_NEXT)) {
                 next();
             } else if (action.equals(ACTION_OPT_MUSIC_SEEK_TO)) {
-
+                int position = intent.getIntExtra(MusicService.PARAM_MUSIC_SEEK_TO, 0);
+                seekTo(position);
             }
         }
     }
@@ -158,6 +162,10 @@ public class MusicService extends Service implements IPlayerListener {
 
     private void last() {
 
+    }
+
+    private void seekTo(int position) {
+        nPlayerInterface.seek(position);
     }
 
     @Override

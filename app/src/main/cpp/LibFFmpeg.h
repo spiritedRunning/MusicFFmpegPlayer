@@ -24,13 +24,16 @@ public:
     AudioEngine *audio = NULL;
     PlayStatus *playStatus = NULL;
 
+    int duration = 0;
+    pthread_mutex_t seek_mutex;
+
 public:
     LibFFmpeg(PlayStatus *playstatus, CallJavaWrapper *callJava, const char *url);
     ~LibFFmpeg();
 
     void prepared();
     void start();
-
+    void seek(int64_t sec);
 
     void decodeFFmpegThread();
 

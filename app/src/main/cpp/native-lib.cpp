@@ -44,3 +44,13 @@ Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1start(JNIEnv *env,
         ffmpeg->start();
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1seek(JNIEnv *env, jobject thiz,
+                                                                   jint sec) {
+    LOGE("seek progress: %d", sec);
+    if (ffmpeg != NULL) {
+        ffmpeg->seek(sec);
+    }
+}

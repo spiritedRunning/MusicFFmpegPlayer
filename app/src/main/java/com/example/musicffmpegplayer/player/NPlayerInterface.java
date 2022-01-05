@@ -66,17 +66,32 @@ public class NPlayerInterface {
         }).start();
     }
 
+    public void seek(int sec) {
+        n_seek(sec);
+    }
+
     public native void n_prepared(String source);
 
     public native void n_start();
 
+    private native void n_seek(int sec);
 
+    /*******************************************************************************************/
     /***** C++ 回调Java start ****/
     public void onCallPrepared() {
         if (wlOnPreparedListener != null) {
             wlOnPreparedListener.onPrepared();
         }
     }
+
+    public void onCallTimeInfo(int currentTime, int totalTime) {
+        if (playerListener == null) {
+            return;
+        }
+        playerListener.onCurrentTime(currentTime, totalTime);
+    }
+
+
 
 
 }
