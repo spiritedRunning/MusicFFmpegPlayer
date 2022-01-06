@@ -37,6 +37,7 @@ public:
     void seek(int64_t sec);
     void resume();
     void setChannel(int channel);
+    void setVolume(int vol);
 
     void decodeFFmpegThread();
 

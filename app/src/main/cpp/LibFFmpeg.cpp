@@ -181,3 +181,9 @@ void LibFFmpeg::setChannel(int channel){
         audio->setChannel(channel);
     }
 }
+
+void LibFFmpeg::setVolume(int vol) {
+    if (audio != NULL) {
+        audio->setVolume(vol);
+    }
+}

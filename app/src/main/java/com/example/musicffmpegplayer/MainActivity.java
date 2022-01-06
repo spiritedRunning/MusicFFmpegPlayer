@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
     private BackgourndAnimationRelativeLayout mRootLayout;
     public static final int MUSIC_MESSAGE = 0;
 
+    private SeekBar mVolumeBar;
+
     public static final String PARAM_MUSIC_LIST = "PARAM_MUSIC_LIST";
     DisplayUtil displayUtil = new DisplayUtil();
     private MusicReceiver mMusicReceiver = new MusicReceiver();
@@ -77,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
         mRootLayout = findViewById(R.id.rootLayout);
         mToolbar = findViewById(R.id.toolBar);
         setSupportActionBar(mToolbar);
+        mVolumeBar = findViewById(R.id.volumeBar);
+
         mDisc.setPlayInfoListener(this);
         mIvLast.setOnClickListener(this);
         mIvNext.setOnClickListener(this);
@@ -100,6 +104,28 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
                 seekTo(position);
             }
         });
+
+        mVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.i(TAG, "vol progress: " + progress);
+
+                Intent intent = new Intent(MusicService.ACTION_OPT_MUSIC_VOLUME);
+                intent.putExtra("VOLUME", progress);
+                LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         mTvMusicDuration.setText(displayUtil.duration2Time(0));
         mTvTotalMusicDuration.setText(displayUtil.duration2Time(0));
         mDisc.setMusicDataList(mMusicDatas);
@@ -123,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
             if (playState) {
                 mIvPlayOrPause.setImageResource(R.mipmap.ic_play);
                 pause();
-                mDisc.stop();
+                mDisc.pause();
             } else {
                 mIvPlayOrPause.setImageResource(R.mipmap.ic_pause);
                 resume();

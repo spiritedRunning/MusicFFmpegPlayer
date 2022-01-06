@@ -79,3 +79,12 @@ Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1channel(JNIEnv *en
         ffmpeg->setChannel(channel);
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1volume(JNIEnv *env, jobject thiz,
+                                                                     jint vol) {
+    if (ffmpeg != NULL) {
+        ffmpeg->setVolume(vol);
+    }
+}

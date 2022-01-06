@@ -504,7 +504,7 @@ public class DiscView extends RelativeLayout {
         playAnimator();
     }
 
-    private void pause() {
+    public void pause() {
         musicStatus = MusicStatus.PAUSE;
         pauseAnimator();
     }

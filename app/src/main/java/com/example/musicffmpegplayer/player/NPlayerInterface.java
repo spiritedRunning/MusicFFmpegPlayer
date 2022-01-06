@@ -84,6 +84,10 @@ public class NPlayerInterface {
         n_seek(sec);
     }
 
+    public void setVolume(int vol) {
+        n_volume(vol);
+    }
+
 
     public native void n_prepared(String source);
 
@@ -94,6 +98,7 @@ public class NPlayerInterface {
     private native void n_resume();
     private native void n_pause();
     private native void n_channel(int channel);
+    private native void n_volume(int vol);
 
     /*******************************************************************************************/
     /***** C++ 回调Java start ****/
@@ -109,7 +114,6 @@ public class NPlayerInterface {
         }
         playerListener.onCurrentTime(currentTime, totalTime);
     }
-
 
 
 }

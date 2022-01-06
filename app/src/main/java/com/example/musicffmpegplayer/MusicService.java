@@ -154,6 +154,9 @@ public class MusicService extends Service implements IPlayerListener {
                 nPlayerInterface.setChannel(1);
             } else if (action.equals(ACTION_OPT_MUSIC_CENTER)) {
                 nPlayerInterface.setChannel(2);
+            } else if (action.equals(ACTION_OPT_MUSIC_VOLUME)) {
+                int vol = intent.getIntExtra("VOLUME", 20);
+                nPlayerInterface.setVolume(vol);
             }
         }
     }

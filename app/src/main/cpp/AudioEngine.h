@@ -64,7 +64,7 @@ public:
     void pause();
     void resume();
     void setChannel(int channel);
-
+    void setVolume(int vol);
 
 public:
     AudioEngine(PlayStatus *playStatus, int sample_rate, CallJavaWrapper *callJava);
