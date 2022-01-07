@@ -61,6 +61,46 @@
         </FrameLayout>
     </RelativeLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="450dp"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/onSpeedBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="变速不变调"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/onPitchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="变调不变速"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/onSpeedPitchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="变速又变调"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/OnNormalPlayBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="正常播放"
+            android:textSize="12sp" />
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/channelLayout"
         android:layout_width="match_parent"
@@ -92,6 +132,7 @@
             android:text="立体声"
             android:textSize="12sp" />
     </LinearLayout>
+
 
     <RelativeLayout
         android:id="@+id/rlMusicTime"

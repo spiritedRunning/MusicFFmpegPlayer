@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -14,7 +13,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.musicffmpegplayer.listener.IPlayerListener;
 import com.example.musicffmpegplayer.listener.WlOnPreparedListener;
+import com.example.musicffmpegplayer.musicui.model.MusicData;
 import com.example.musicffmpegplayer.player.NPlayerInterface;
+
+import java.util.List;
 
 /**
  * Created by Zach on 2021/12/15 16:44
@@ -37,6 +39,11 @@ public class MusicService extends Service implements IPlayerListener {
     public static final String ACTION_OPT_MUSIC_CENTER = "ACTION_OPT_MUSIC_CENTER";
     public static final String ACTION_OPT_MUSIC_VOLUME = "ACTION_OPT_MUSIC_VOLUME";
 
+    public static final String ACTION_OPT_MUSIC_SPEED_AND_NO_PITCH = "ACTION_OPT_MUSIC_SPEED_AN_NO_PITCH";
+    public static final String ACTION_OPT_MUSIC_NO_SPEED_AND_PITCH = "ACTION_OPT_MUSIC_SPEED_NO_AN_PITCH";
+    public static final String ACTION_OPT_MUSIC_SPEED_AND_PITCH = "ACTION_OPT_MUSIC_SPEED_AN_PITCH";
+    public static final String ACTION_OPT_MUSIC_SPEED_PITCH_NORMAL = "ACTION_OPT_MUSIC_SPEED_PITCH_NOMAORL";
+
 
     /*状态指令*/
     public static final String ACTION_STATUS_MUSIC_PLAY = "ACTION_STATUS_MUSIC_PLAY";
@@ -51,6 +58,7 @@ public class MusicService extends Service implements IPlayerListener {
 
     private int mCurrentMusicIndex = 0;
 
+    List<MusicData> musicDataList;
     private MusicReceiver mMusicReceiver = new MusicReceiver();
 
     @Nullable
@@ -75,6 +83,13 @@ public class MusicService extends Service implements IPlayerListener {
         });
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        musicDataList = (List<MusicData>) intent.getSerializableExtra(MainActivity.PARAM_MUSIC_LIST);
+        return START_STICKY;
+    }
+
     private void initBoardCastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_OPT_MUSIC_PLAY);
@@ -87,6 +102,11 @@ public class MusicService extends Service implements IPlayerListener {
         intentFilter.addAction(ACTION_OPT_MUSIC_RIGHT);
         intentFilter.addAction(ACTION_OPT_MUSIC_VOLUME);
         intentFilter.addAction(ACTION_OPT_MUSIC_CENTER);
+
+        intentFilter.addAction(ACTION_OPT_MUSIC_SPEED_AND_NO_PITCH);
+        intentFilter.addAction(ACTION_OPT_MUSIC_NO_SPEED_AND_PITCH);
+        intentFilter.addAction(ACTION_OPT_MUSIC_SPEED_AND_PITCH);
+        intentFilter.addAction(ACTION_OPT_MUSIC_SPEED_PITCH_NORMAL);
         LocalBroadcastManager.getInstance(this).registerReceiver(mMusicReceiver, intentFilter);
     }
 
@@ -157,6 +177,18 @@ public class MusicService extends Service implements IPlayerListener {
             } else if (action.equals(ACTION_OPT_MUSIC_VOLUME)) {
                 int vol = intent.getIntExtra("VOLUME", 20);
                 nPlayerInterface.setVolume(vol);
+            } else if (action.equals(MusicService.ACTION_OPT_MUSIC_SPEED_AND_NO_PITCH)) {
+                nPlayerInterface.setSpeed(1.5f);
+                nPlayerInterface.setPitch(1.0f);
+            } else if (action.equals(MusicService.ACTION_OPT_MUSIC_NO_SPEED_AND_PITCH)) {
+                nPlayerInterface.setSpeed(1.0f);
+                nPlayerInterface.setPitch(1.5f);
+            } else if (action.equals(MusicService.ACTION_OPT_MUSIC_SPEED_AND_PITCH)) {
+                nPlayerInterface.setSpeed(1.5f);
+                nPlayerInterface.setPitch(1.5f);
+            } else if (action.equals(MusicService.ACTION_OPT_MUSIC_SPEED_PITCH_NORMAL)) {
+                nPlayerInterface.setSpeed(1.0f);
+                nPlayerInterface.setPitch(1.0f);
             }
         }
     }

@@ -10,6 +10,13 @@ AudioEngine::AudioEngine(PlayStatus *playstatus, int sample_rate, CallJavaWrappe
     queue = new DataQueue(playstatus);
     buffer = (uint8_t *) av_malloc(sample_rate * 2 * 2);
     this->callJava = callJava;
+
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(sample_rate * 2 * 2));
+    soundTouch = new SoundTouch();
+    soundTouch->setSampleRate(sample_rate);
+    soundTouch->setChannels(2);
+    soundTouch->setTempo(speed);
+    soundTouch->setPitch(pitch);
 }
 
 AudioEngine::~AudioEngine() {
@@ -28,7 +35,7 @@ void AudioEngine::play() {
     pthread_create(&thread_play, NULL, decodePlay, this);
 }
 
-int AudioEngine::resampleAudio() {
+int AudioEngine::resampleAudio(void **pcmbuf) {
     while (playstatus != NULL && !playstatus->exit) {
         avPacket = av_packet_alloc();
         if (queue->getAvPacket(avPacket) != 0) {
@@ -47,7 +54,6 @@ int AudioEngine::resampleAudio() {
         avFrame = av_frame_alloc();
         ret = avcodec_receive_frame(avCodecContext, avFrame);
         if (ret == 0) {
-
             if (avFrame->channels && avFrame->channel_layout == 0) {
                 avFrame->channel_layout = av_get_default_channel_layout(avFrame->channels);
             } else if (avFrame->channels == 0 && avFrame->channel_layout > 0) {
@@ -77,12 +83,13 @@ int AudioEngine::resampleAudio() {
                 continue;
             }
 
-            int nb = swr_convert(
+            nb = swr_convert(
                     swr_ctx,
                     &buffer,
                     avFrame->nb_samples,
                     (const uint8_t **) avFrame->data,
                     avFrame->nb_samples);
+            LOGD("nb: %d", nb);
 
             int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
@@ -93,6 +100,8 @@ int AudioEngine::resampleAudio() {
                 now_time = clock;
             }
             clock = now_time;
+            *pcmbuf = buffer;  // buffer数据传递
+
             if (LOG_DEBUG) {
 //                LOGE("data_size is %d", data_size);
             }
@@ -120,7 +129,8 @@ int AudioEngine::resampleAudio() {
 void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     AudioEngine *wlAudio = (AudioEngine *) context;
     if (wlAudio != NULL) {
-        int buffersize = wlAudio->resampleAudio();
+//        int buffersize = wlAudio->resampleAudio();
+        int buffersize = wlAudio->getSoundTouchData();
         if (buffersize > 0) {
             wlAudio->clock += buffersize / ((double) (wlAudio->sample_rate * 2 * 2));
 
@@ -131,8 +141,8 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
 
-            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, (char *) wlAudio->buffer,
-                                                buffersize);
+            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, (char *) wlAudio->sampleBuffer,
+                                                buffersize * 2 * 2);
         }
     }
 }
@@ -300,3 +310,61 @@ void AudioEngine::setVolume(int percent) {
         }
     }
 }
+
+int AudioEngine::getSoundTouchData() {
+    while (playstatus != NULL && !playstatus->exit) {
+        out_buffer = NULL;
+        if (finished) {
+            finished = false;
+            data_size = this->resampleAudio(reinterpret_cast<void **>(&out_buffer));  // important
+            if (data_size > 0) {
+                for (int i = 0; i < data_size / 2 + 1; i++)  {
+                    sampleBuffer[i] = out_buffer[i * 2] | ((out_buffer[i * 2 + 1]) << 8);
+                }
+                // 进行波的整理  sampleBuffer新的波
+                soundTouch->putSamples(sampleBuffer, nb);
+                num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
+
+                LOGE("getSoundTouchData1  num: %d", num);
+            } else {
+                soundTouch->flush();
+            }
+        }
+
+        if (num == 0) {
+            finished = true;
+            continue;
+        } else {
+            // 凑两个波形再输出
+            if (out_buffer == NULL) {
+                num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
+                LOGE("getSoundTouchData2   num: %d", num);
+                if (num == 0) {
+                    finished = true;
+                    continue;
+                }
+            }
+            LOGE("getSoundTouchData3");
+            return num;
+        }
+    }
+    LOGE("getSoundTouchData4");
+    return 0;
+}
+
+void AudioEngine::setSpeed(float speed) {
+    this->speed = speed;
+    if (soundTouch != NULL) {
+        soundTouch->setTempo(speed);
+    }
+}
+
+void AudioEngine::setPitch(float pitch) {
+    this->pitch = pitch;
+    if (soundTouch != NULL) {
+        soundTouch->setPitch(pitch);
+    }
+}
+
+
+

@@ -88,3 +88,21 @@ Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1volume(JNIEnv *env
         ffmpeg->setVolume(vol);
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1speed(JNIEnv *env, jobject thiz,
+                                                                    jfloat speed) {
+    if (ffmpeg != NULL) {
+        ffmpeg->setSpeed(speed);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1pitch(JNIEnv *env, jobject thiz,
+                                                                    jfloat pitch) {
+    if (ffmpeg != NULL) {
+        ffmpeg->setPitch(pitch);
+    }
+}

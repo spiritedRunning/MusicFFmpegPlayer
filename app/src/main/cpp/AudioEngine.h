@@ -8,6 +8,7 @@
 #include "PlayStatus.h"
 #include "CallJavaWrapper.h"
 #include "DataQueue.h"
+#include "SoundTouch.h"
 
 
 extern "C" {
@@ -16,6 +17,8 @@ extern "C" {
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 };
+
+using namespace soundtouch;
 
 class AudioEngine {
 public:
@@ -61,10 +64,14 @@ public:
     int mute = 2;   // 立体声
     SLMuteSoloItf pcmMutePlay = NULL;   // 声道
 
-    void pause();
-    void resume();
-    void setChannel(int channel);
-    void setVolume(int vol);
+    float speed = 1.0f;
+    float pitch = 1.0f;
+    SoundTouch *soundTouch = NULL;
+    uint8_t *out_buffer = NULL;
+    bool finished = true;
+    SAMPLETYPE *sampleBuffer = NULL;
+    int nb = 0;  // 转换之后Pcm数据多少
+    int num = 0; // 新波的个数
 
 public:
     AudioEngine(PlayStatus *playStatus, int sample_rate, CallJavaWrapper *callJava);
@@ -72,12 +79,22 @@ public:
     ~AudioEngine();
 
     void play();
+    void pause();
+    void resume();
+    void setChannel(int channel);
+    void setVolume(int vol);
 
-    int resampleAudio();
+    void setSpeed(float speed);
+    void setPitch(float pitch);
+    int getSoundTouchData();
+
+    int resampleAudio(void **pcmbuf);
 
     void initOpenSLES();
 
     int getCurrentSampleRateForOpensles(int sample_rate);
+
+    void release();
 };
 
 

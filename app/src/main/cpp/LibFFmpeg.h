@@ -39,6 +39,9 @@ public:
     void setChannel(int channel);
     void setVolume(int vol);
 
+    void setSpeed(float speed);
+    void setPitch(float pitch);
+
     void decodeFFmpegThread();
 
 };

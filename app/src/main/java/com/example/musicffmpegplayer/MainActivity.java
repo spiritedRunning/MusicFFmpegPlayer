@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
     public static final int MUSIC_MESSAGE = 0;
 
     private SeekBar mVolumeBar;
+    private Button onSpeedBtn, onPitchBtn, onSpeedPitchBtn, onNormalPlayBtn;
 
     public static final String PARAM_MUSIC_LIST = "PARAM_MUSIC_LIST";
     DisplayUtil displayUtil = new DisplayUtil();
@@ -75,12 +77,21 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
         mIvPlayOrPause = findViewById(R.id.ivPlayOrPause);
         mTvMusicDuration = findViewById(R.id.tvCurrentTime);
         mTvTotalMusicDuration = findViewById(R.id.tvTotalTime);
+        onSpeedBtn = findViewById(R.id.onSpeedBtn);
+        onPitchBtn = findViewById(R.id.onPitchBtn);
+        onSpeedPitchBtn = findViewById(R.id.onSpeedPitchBtn);
+        onNormalPlayBtn = findViewById(R.id.OnNormalPlayBtn);
+
         mSeekBar = findViewById(R.id.musicSeekBar);
         mRootLayout = findViewById(R.id.rootLayout);
         mToolbar = findViewById(R.id.toolBar);
         setSupportActionBar(mToolbar);
         mVolumeBar = findViewById(R.id.volumeBar);
 
+        onSpeedBtn.setOnClickListener(this);
+        onPitchBtn.setOnClickListener(this);
+        onSpeedPitchBtn.setOnClickListener(this);
+        onNormalPlayBtn.setOnClickListener(this);
         mDisc.setPlayInfoListener(this);
         mIvLast.setOnClickListener(this);
         mIvNext.setOnClickListener(this);
@@ -161,7 +172,16 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
             mDisc.next();
         } else if (v == mIvLast) {
             mDisc.last();
+        } else if (v == onSpeedBtn) {
+            optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_AND_NO_PITCH);
+        } else if (v == onPitchBtn) {
+            optMusic(MusicService.ACTION_OPT_MUSIC_NO_SPEED_AND_PITCH);
+        } else if (v == onSpeedPitchBtn) {
+            optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_AND_PITCH);
+        } else if (v == onNormalPlayBtn) {
+            optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_PITCH_NORMAL);
         }
+
     }
 
     @Override
@@ -182,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
                 play();
                 break;
             }
-            case PAUSE:{
+            case PAUSE: {
                 pause();
                 break;
             }

@@ -88,6 +88,15 @@ public class NPlayerInterface {
         n_volume(vol);
     }
 
+    public void setSpeed(float speed) {
+        n_speed(speed);
+    }
+
+
+    public void setPitch(float pitch) {
+        n_pitch(pitch);
+    }
+
 
     public native void n_prepared(String source);
 
@@ -99,6 +108,8 @@ public class NPlayerInterface {
     private native void n_pause();
     private native void n_channel(int channel);
     private native void n_volume(int vol);
+    private native void n_speed(float speed);
+    private native void n_pitch(float pitch);
 
     /*******************************************************************************************/
     /***** C++ 回调Java start ****/

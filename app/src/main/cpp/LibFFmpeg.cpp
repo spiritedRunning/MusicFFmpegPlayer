@@ -187,3 +187,15 @@ void LibFFmpeg::setVolume(int vol) {
         audio->setVolume(vol);
     }
 }
+
+void LibFFmpeg::setSpeed(float speed) {
+    if (audio != NULL) {
+        audio->setSpeed(speed);
+    }
+}
+
+void LibFFmpeg::setPitch(float pitch) {
+    if (audio != NULL) {
+        audio->setPitch(pitch);
+    }
+}
