@@ -13,6 +13,7 @@
 
 extern "C"{
 #include "libavformat/avformat.h"
+#include "libavutil/time.h"
 }
 
 class LibFFmpeg {
@@ -26,6 +27,9 @@ public:
 
     int duration = 0;
     pthread_mutex_t seek_mutex;
+    pthread_mutex_t init_mutex;
+
+    bool exit = false;
 
 public:
     LibFFmpeg(PlayStatus *playstatus, CallJavaWrapper *callJava, const char *url);
@@ -44,6 +48,7 @@ public:
 
     void decodeFFmpegThread();
 
+    void release();
 };
 
 

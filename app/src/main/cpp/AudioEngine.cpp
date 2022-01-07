@@ -141,7 +141,8 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
 
-            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, (char *) wlAudio->sampleBuffer,
+            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue,
+                                                (char *) wlAudio->sampleBuffer,
                                                 buffersize * 2 * 2);
         }
     }
@@ -318,7 +319,7 @@ int AudioEngine::getSoundTouchData() {
             finished = false;
             data_size = this->resampleAudio(reinterpret_cast<void **>(&out_buffer));  // important
             if (data_size > 0) {
-                for (int i = 0; i < data_size / 2 + 1; i++)  {
+                for (int i = 0; i < data_size / 2 + 1; i++) {
                     sampleBuffer[i] = out_buffer[i * 2] | ((out_buffer[i * 2 + 1]) << 8);
                 }
                 // 进行波的整理  sampleBuffer新的波
@@ -367,4 +368,47 @@ void AudioEngine::setPitch(float pitch) {
 }
 
 
+void AudioEngine::release() {
+    if (queue != NULL) {
+        delete (queue);
+        queue = NULL;
+    }
+    if (pcmPlayerObject != NULL) {
+        (*pcmPlayerObject)->Destroy(pcmPlayerObject);
+        pcmPlayerObject = NULL;
+        pcmPlayerPlay = NULL;
+        pcmBufferQueue = NULL;
+    }
+
+    if (outputMixObject != NULL) {
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+        outputMixEnvironmentalReverb = NULL;
+    }
+
+    if (engineObject != NULL) {
+        (*engineObject)->Destroy(engineObject);
+        engineObject = NULL;
+        engineEngine = NULL;
+    }
+
+    if (buffer != NULL) {
+        free(buffer);
+        buffer = NULL;
+    }
+
+    if (avCodecContext != NULL) {
+        avcodec_close(avCodecContext);
+        avcodec_free_context(&avCodecContext);
+        avCodecContext = NULL;
+    }
+
+    if (playstatus != NULL) {
+        playstatus = NULL;
+    }
+    if (callJava != NULL) {
+        callJava = NULL;
+    }
+
+}
 

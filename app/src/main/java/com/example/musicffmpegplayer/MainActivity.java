@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -31,13 +30,12 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
     private DiscView mDisc;
     private Toolbar mToolbar;
     private SeekBar mSeekBar;
-    private ImageView mIvPlayOrPause, mIvNext, mIvLast;
+    private ImageView mIvPlayOrPause, mIvNext, mIvLast, mIvStop;
     private TextView mTvMusicDuration, mTvTotalMusicDuration;
     private BackgourndAnimationRelativeLayout mRootLayout;
     public static final int MUSIC_MESSAGE = 0;
 
     private SeekBar mVolumeBar;
-    private Button onSpeedBtn, onPitchBtn, onSpeedPitchBtn, onNormalPlayBtn;
 
     public static final String PARAM_MUSIC_LIST = "PARAM_MUSIC_LIST";
     DisplayUtil displayUtil = new DisplayUtil();
@@ -74,13 +72,10 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
         mDisc = findViewById(R.id.discview);
         mIvNext = findViewById(R.id.ivNext);
         mIvLast = findViewById(R.id.ivLast);
+        mIvStop = findViewById(R.id.ivStop);
         mIvPlayOrPause = findViewById(R.id.ivPlayOrPause);
         mTvMusicDuration = findViewById(R.id.tvCurrentTime);
         mTvTotalMusicDuration = findViewById(R.id.tvTotalTime);
-        onSpeedBtn = findViewById(R.id.onSpeedBtn);
-        onPitchBtn = findViewById(R.id.onPitchBtn);
-        onSpeedPitchBtn = findViewById(R.id.onSpeedPitchBtn);
-        onNormalPlayBtn = findViewById(R.id.OnNormalPlayBtn);
 
         mSeekBar = findViewById(R.id.musicSeekBar);
         mRootLayout = findViewById(R.id.rootLayout);
@@ -88,10 +83,8 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
         setSupportActionBar(mToolbar);
         mVolumeBar = findViewById(R.id.volumeBar);
 
-        onSpeedBtn.setOnClickListener(this);
-        onPitchBtn.setOnClickListener(this);
-        onSpeedPitchBtn.setOnClickListener(this);
-        onNormalPlayBtn.setOnClickListener(this);
+
+        mIvStop.setOnClickListener(this);
         mDisc.setPlayInfoListener(this);
         mIvLast.setOnClickListener(this);
         mIvNext.setOnClickListener(this);
@@ -172,14 +165,8 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
             mDisc.next();
         } else if (v == mIvLast) {
             mDisc.last();
-        } else if (v == onSpeedBtn) {
-            optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_AND_NO_PITCH);
-        } else if (v == onPitchBtn) {
-            optMusic(MusicService.ACTION_OPT_MUSIC_NO_SPEED_AND_PITCH);
-        } else if (v == onSpeedPitchBtn) {
-            optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_AND_PITCH);
-        } else if (v == onNormalPlayBtn) {
-            optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_PITCH_NORMAL);
+        } else if (v == mIvStop) {
+            stop();
         }
 
     }
@@ -238,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
         mTvMusicDuration.setText(displayUtil.duration2Time(0));
         mTvTotalMusicDuration.setText(displayUtil.duration2Time(0));
         mSeekBar.setProgress(0);
+        mDisc.pause();
+
+        optMusic(MusicService.ACTION_OPT_MUSIC_STOP);
     }
 
     private void next() {
@@ -279,6 +269,23 @@ public class MainActivity extends AppCompatActivity implements DiscView.IPlayInf
 
     public void center(View view) {
         optMusic(MusicService.ACTION_OPT_MUSIC_CENTER);
+    }
+
+
+    public void OnSpeed(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_AND_NO_PITCH);
+    }
+
+    public void OnPitch(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_NO_SPEED_AND_PITCH);
+    }
+
+    public void OnSpeedPitch(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_AND_PITCH);
+    }
+
+    public void OnNormalPlay(View view) {
+        optMusic(MusicService.ACTION_OPT_MUSIC_SPEED_PITCH_NORMAL);
     }
 
     private void optMusic(final String action) {

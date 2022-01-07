@@ -66,6 +66,15 @@ public class NPlayerInterface {
         }).start();
     }
 
+    public void stop() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                n_stop();
+            }
+        }).start();
+    }
+
 
     public void pause() {
         n_pause();
@@ -102,13 +111,20 @@ public class NPlayerInterface {
 
     public native void n_start();
 
+    public native void n_stop();
+
     private native void n_seek(int sec);
 
     private native void n_resume();
+
     private native void n_pause();
+
     private native void n_channel(int channel);
+
     private native void n_volume(int vol);
+
     private native void n_speed(float speed);
+
     private native void n_pitch(float pitch);
 
     /*******************************************************************************************/

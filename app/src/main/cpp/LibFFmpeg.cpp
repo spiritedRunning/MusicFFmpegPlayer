@@ -8,11 +8,13 @@ LibFFmpeg::LibFFmpeg(PlayStatus *playstatus, CallJavaWrapper *callJava, const ch
     this->playStatus = playstatus;
     this->callJava = callJava;
     this->url = url;
+    pthread_mutex_init(&init_mutex, NULL);
     pthread_mutex_init(&seek_mutex, NULL);
 }
 
 LibFFmpeg::~LibFFmpeg() {
     pthread_mutex_destroy(&seek_mutex);
+    pthread_mutex_destroy(&init_mutex);
 }
 
 
@@ -176,7 +178,7 @@ void LibFFmpeg::resume() {
     }
 }
 
-void LibFFmpeg::setChannel(int channel){
+void LibFFmpeg::setChannel(int channel) {
     if (audio != NULL) {
         audio->setChannel(channel);
     }
@@ -198,4 +200,53 @@ void LibFFmpeg::setPitch(float pitch) {
     if (audio != NULL) {
         audio->setPitch(pitch);
     }
+}
+
+void LibFFmpeg::release() {
+    if (LOG_DEBUG) {
+        LOGE("开始释放ffmpeg");
+    }
+    playStatus->exit = true;
+
+    int sleepCount = 0;
+    pthread_mutex_lock(&init_mutex);
+    while (!exit) {
+        if (sleepCount > 1000) {
+            exit = true;
+        }
+        if (LOG_DEBUG) {
+            LOGE("wait ffmpeg  exit %d", sleepCount);
+        }
+        sleepCount++;
+        av_usleep(1000 * 10); //暂停10毫秒
+    }
+
+    if (audio != NULL) {
+        audio->release();
+        delete (audio);
+        audio = NULL;
+    }
+
+    if (LOG_DEBUG) {
+        LOGE("释放 封装格式上下文");
+    }
+    if (pFormatCtx != NULL) {
+        avformat_close_input(&pFormatCtx);
+        avformat_free_context(pFormatCtx);
+        pFormatCtx = NULL;
+    }
+    if (LOG_DEBUG) {
+        LOGE("释放 callJava");
+    }
+    if (callJava != NULL) {
+        callJava = NULL;
+    }
+    if (LOG_DEBUG) {
+        LOGE("释放 playstatus");
+    }
+    if (playStatus != NULL) {
+        playStatus = NULL;
+    }
+    pthread_mutex_unlock(&init_mutex);
+
 }

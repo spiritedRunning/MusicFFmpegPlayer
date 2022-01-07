@@ -9,6 +9,8 @@ CallJavaWrapper *callJava = NULL;
 LibFFmpeg *ffmpeg = NULL;
 PlayStatus *playstatus = NULL;
 
+bool need_exit = true;
+
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     jint result = -1;
@@ -105,4 +107,27 @@ Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1pitch(JNIEnv *env,
     if (ffmpeg != NULL) {
         ffmpeg->setPitch(pitch);
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_musicffmpegplayer_player_NPlayerInterface_n_1stop(JNIEnv *env, jobject thiz) {
+    if (!need_exit) { // 正在退出 只调用一次
+        return;
+    }
+
+    need_exit = false;
+    if (ffmpeg != NULL) {
+        ffmpeg->release();
+        delete (ffmpeg);
+        if (callJava != NULL) {
+            delete (callJava);
+            callJava = NULL;
+        }
+        if (playstatus != NULL) {
+            delete (playstatus);
+            playstatus = NULL;
+        }
+    }
+    need_exit = true;
 }

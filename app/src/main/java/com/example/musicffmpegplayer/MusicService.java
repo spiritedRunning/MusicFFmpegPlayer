@@ -30,6 +30,7 @@ public class MusicService extends Service implements IPlayerListener {
     /*操作指令*/
     public static final String ACTION_OPT_MUSIC_PLAY = "ACTION_OPT_MUSIC_PLAY";
     public static final String ACTION_OPT_MUSIC_PAUSE = "ACTION_OPT_MUSIC_PAUSE";
+    public static final String ACTION_OPT_MUSIC_STOP = "ACTION_OPT_MUSIC_STOP";
     public static final String ACTION_OPT_MUSIC_RESUME = "ACTION_OPT_MUSIC_RESUME";
     public static final String ACTION_OPT_MUSIC_NEXT = "ACTION_OPT_MUSIC_NEXT";
     public static final String ACTION_OPT_MUSIC_LAST = "ACTION_OPT_MUSIC_LAST";
@@ -95,6 +96,7 @@ public class MusicService extends Service implements IPlayerListener {
         intentFilter.addAction(ACTION_OPT_MUSIC_PLAY);
         intentFilter.addAction(ACTION_OPT_MUSIC_PAUSE);
         intentFilter.addAction(ACTION_OPT_MUSIC_RESUME);
+        intentFilter.addAction(ACTION_OPT_MUSIC_STOP);
         intentFilter.addAction(ACTION_OPT_MUSIC_NEXT);
         intentFilter.addAction(ACTION_OPT_MUSIC_LAST);
         intentFilter.addAction(ACTION_OPT_MUSIC_SEEK_TO);
@@ -157,6 +159,8 @@ public class MusicService extends Service implements IPlayerListener {
             Log.i(TAG, "onReceive: " + action);
             if (action.equals(ACTION_OPT_MUSIC_PLAY)) {
                 play(mCurrentMusicIndex);
+            } else if (action.equals(ACTION_OPT_MUSIC_STOP)) {
+                stop();
             } else if (action.equals(ACTION_OPT_MUSIC_LAST)) {
                 last();
             } else if (action.equals(ACTION_OPT_MUSIC_NEXT)) {
@@ -208,6 +212,7 @@ public class MusicService extends Service implements IPlayerListener {
 
 
     private void stop() {
+        nPlayerInterface.stop();
     }
 
     private void next() {
